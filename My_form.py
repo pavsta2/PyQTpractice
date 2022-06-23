@@ -11,6 +11,7 @@
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
+from PySide2 import QtWidgets
 
 
 class Ui_Form(object):
@@ -137,3 +138,10 @@ class Ui_Form(object):
         self.pushButton_6.setText(QCoreApplication.translate("Form", u"\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u0434\u0430\u043d\u043d\u044b\u0435 \u043e\u043a\u043d\u0430", None))
     # retranslateUi
 
+if __name__ == "__main__":
+    app = QtWidgets.QApplication()
+
+    myapp = Ui_Form()
+    myapp.show()
+
+    app.exec_()

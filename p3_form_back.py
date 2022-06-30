@@ -13,27 +13,30 @@ class P3_Form(QtWidgets.QWidget):
         self.ui.setupUi(self)
 
         self.initThreads()
+
+        self.initUi()
+
+    def initUi(self):
         self.ui.pushButtonTimerStart.clicked.connect(self.timerStart)
+        self.timerThread.timerSignal.connect(self.updateLineEditTimeLeft, QtCore.Qt.AutoConnection)
+        self.timerThread.finished.connect(self.timerFinished)
 
+        self.ui.pushButtonUrlCheckStart.clicked.connect(self.updateUrlCheck)
+        self.urlChacker.urlSignal.connect(self.updateUrlCheckSignal)
 
+        self.SMonitor.sysSignal.connect(self.updatySysMonitor)
+        self.ui.spinBoxSystemInfoDelay.valueChanged.connect(self.setSystemInfoDelay)
 
 
     def initThreads(self):
         self.timerThread = TimerThread()
-
-        self.timerThread.timerSignal.connect(self.updateLineEditTimeLeft, QtCore.Qt.AutoConnection)
-        self.timerThread.finished.connect(self.timerFinished)
-
         self.urlChacker = UrlThread()
-
-        self.urlChacker.urlSignal.connect(self.updateUrlCheck)
-
-
+        self.SMonitor = SystemMonitor()
+        self.SMonitor.start()
 
 
     def timerStart(self):
         if self.ui.pushButtonTimerStart.isChecked():
-            self.ui.lineEditTimerEnd.setText(str(self.ui.spinBoxTimerCount.value()))
             self.timerThread.timeCount = self.ui.spinBoxTimerCount.value()
             self.timerThread.start()
             self.ui.pushButtonTimerStart.setText("Стоп")
@@ -48,12 +51,35 @@ class P3_Form(QtWidgets.QWidget):
     def updateLineEditTimeLeft(self, emit_value):
         self.ui.lineEditTimerEnd.setText(emit_value)
 
-    def updateUrlCheck(self, emit_value):
+    def updateUrlCheck(self):
+        # try:
+        #     self.urlChacker.setUrl(self.ui.lineEditURL)
+        #     self.timerThread.start()
+        # except ValueError:
+        #     QtWidgets.QMessageBox.warning(self, "ошибка", "неверное значение")
+
+        if self.ui.pushButtonUrlCheckStart.isChecked():
+            self.urlChacker.setUrl(self.ui.lineEditURL.text())
+            self.urlChacker.setDelay(self.ui.spinBoxUrlCheckTime.value())
+            self.urlChacker.start()
+            self.ui.pushButtonUrlCheckStart.setText("Стоп")
+        else:
+            self.ui.pushButtonUrlCheckStart.setText("Начать проверку")
+            self.ui.pushButtonUrlCheckStart.setChecked(False)
+            self.urlChacker.status = False
+
+    def updateUrlCheckSignal(self, emit_value):
+
         self.ui.plainTextEditUrlCheckLog.appendPlainText(f"{time.ctime()} - Статус {emit_value}")
 
+    def updatySysMonitor(self, emit_list) -> None:
+        self.ui.progressBarCPU.setValue(emit_list[0])
+        self.ui.labelCPUPercent.setText(f"{emit_list[0]} %")
+        self.ui.progressBarRAM.setValue(emit_list[1])
+        self.ui.labelRAMPercent.setText(f"{emit_list[1]} %")
 
-
-
+    def setSystemInfoDelay(self):
+        self.SMonitor.setMonitorDelay(self.ui.spinBoxSystemInfoDelay.value())
 
 
 class TimerThread(QtCore.QThread):
@@ -67,6 +93,7 @@ class TimerThread(QtCore.QThread):
         self.status = True
 
     def run(self):
+        self.status = True
         while self.status:
             time.sleep(1)
             self.timeCount -= 1
@@ -90,6 +117,22 @@ class UrlThread(QtCore.QThread):
             self.urlSignal.emit(responce.status_code)
             time.sleep(self.__delay)
 
+class SystemMonitor(QtCore.QThread):
+    sysSignal = QtCore.Signal(list)
+
+    def setMonitorDelay(self, mon_delay):
+        self.__mon_delay = mon_delay
+
+    def run(self):
+        # if self.__mon_delay is None:
+        SystemMonitor.setMonitorDelay(self, 1)
+
+        while True:
+            ram = psutil.virtual_memory()
+            ram_bisy = int(ram.used * 100 / ram.total)
+            cpu_value = psutil.cpu_percent()
+            self.sysSignal.emit([cpu_value, ram_bisy])
+            time.sleep(self.__mon_delay)
 
 
 

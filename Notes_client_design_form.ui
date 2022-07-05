@@ -14,24 +14,69 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_4">
+   <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QPushButton" name="pushButton_get_all_notes">
-          <property name="text">
-           <string>Все записи</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_get_all_notes">
+            <property name="text">
+             <string>Показать все записи</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBox_filter">
+            <property name="text">
+             <string>Фильтр</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>Опубликовать</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QLabel" name="label_filter_importance">
+            <property name="text">
+             <string>Фильтр &quot;importance&quot;:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_importance_filter"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="pushButton_note_pk">
+            <property name="text">
+             <string>Показать записи с номером:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_note_pk">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -45,7 +90,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTextBrowser" name="textBrowser_window_output"/>
+         <widget class="QTableView" name="tableView_output"/>
         </item>
         <item>
          <widget class="QLabel" name="label_window_input">
@@ -116,6 +161,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_7"/>
           </item>
           <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Опубликовать</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
              <widget class="QLabel" name="label_6">
@@ -147,7 +199,7 @@
      <x>0</x>
      <y>0</y>
      <width>719</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

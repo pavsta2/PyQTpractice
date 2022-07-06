@@ -1,9 +1,9 @@
 from PySide2 import QtCore, QtWidgets, QtGui
-from PySide2.QtCore import QSettings
 import requests
 from requests.auth import HTTPBasicAuth
 
 from Notes_client_design_form import Ui_MainWindow as Form
+from ui import my_res
 
 
 class Note_Form(QtWidgets.QMainWindow):
@@ -18,14 +18,17 @@ class Note_Form(QtWidgets.QMainWindow):
 
         self.initUi()
         self.initWindows()
-        self.redColor = QtGui.QColor(255,0,0)
 
     def initUi(self) -> None:
+        my_res.qInitResources()
+        self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(":/ico/ico/atom-browser.ico")))
+
         self.ui.comboBox_importance.addItems(["False", "True"])
         self.ui.comboBox_importance_filter.addItems(["False", "True"])
         self.ui.comboBox_importance_filter.setEnabled(False)
         self.ui.comboBox_condition.addItems(["Активно", "Отложено", "Выполнено"])
         self.ui.comboBox_note_pk.addItems(self.get_id_list())
+
         # сигналы
         self.ui.pushButton_get_all_notes.clicked.connect(self.loadTable)
         self.ui.pushButton.clicked.connect(self.postNote)
@@ -37,15 +40,21 @@ class Note_Form(QtWidgets.QMainWindow):
         self.pbdelete.clicked.connect(self.deleteNote)
 
     def initWindows(self) -> None:
+        """
+        Инициализация дочернего окна
+        """
         self.child_window = DroppedWindow()
         self.child_window.send_data.connect(self.setLoginPass)
 
     def open_child_window(self) -> None:
+        """
+        вызов дочернего окна
+        """
         self.child_window.show()
 
     def get_id_list(self) -> list:
         """
-        Формирует актуальный список ID из базы
+        Формирует актуальный список ID всех записей из базы данных для динамического заполнения/обновления comboBox_note_pk
         :return: список имеющихся в базе id
         """
         response = requests.get("http://127.0.0.1:8000/notes/")
@@ -56,10 +65,9 @@ class Note_Form(QtWidgets.QMainWindow):
     # слоты
 
     def filter_activate(self) -> None:
-        """
-        При наличии галочке в checkBox_filter активирует фильтр и блокирует кнопку получения одной записи и наоборот
-        :return:
-        """
+        """При наличии галочки в checkBox_filter активирует фильтр и
+        блокирует кнопку получения одной записи и наоборот"""
+
         if self.ui.checkBox_filter.isChecked() == True:
             self.ui.comboBox_importance_filter.setEnabled(True)
             self.ui.pushButton_note_pk.setEnabled(False)
@@ -70,7 +78,7 @@ class Note_Form(QtWidgets.QMainWindow):
     def postNote(self) -> None:
         """
         Метод POST
-        :return:
+        :return: None
         """
         if self.login and self.password:
             auth = HTTPBasicAuth(self.login, self.password)
@@ -114,7 +122,7 @@ class Note_Form(QtWidgets.QMainWindow):
         """
         Записывает лоиг и пароль, пришедшие из дочернего окна
         :param emit: сигнал из дочернего окна
-        :return:
+        :return: None
         """
         self.login = emit[0]
         self.password = emit[1]
@@ -124,21 +132,25 @@ class Note_Form(QtWidgets.QMainWindow):
 
     def loadTable(self, pk: str = None) -> None:
         """
-        Создает и заполняет таблицу с результатами
+        Создает и заполняет таблицу с результатами, вызывая метод GET
         :param pk:
-        :return:
+        :return: None
         """
         headers = ["id", "title", "message", "importance", "condition", "author", "delete"]
 
         stm = QtGui.QStandardItemModel()
         stm.setHorizontalHeaderLabels(headers)
 
-        if self.sender() == self.ui.pushButton_get_all_notes or self.deleteNote:
+        if self.sender() == self.ui.pushButton_get_all_notes or self.sender() == self.deleteNote:
             if self.ui.checkBox_filter.isChecked():
                 response = requests.get(
                     f"http://127.0.0.1:8000/notes/filter/?importance={self.ui.comboBox_importance_filter.currentText()}")
+                self.ui.labe_window_output.setStyleSheet("background-color: lightgreen")
+                self.ui.labe_window_output.setText("Результат:")
             else:
                 response = requests.get("http://127.0.0.1:8000/notes/")
+                self.ui.labe_window_output.setStyleSheet("background-color: lightgreen")
+                self.ui.labe_window_output.setText("Результат:")
 
         else:
             if self.login and self.password:
@@ -148,6 +160,8 @@ class Note_Form(QtWidgets.QMainWindow):
             if not pk:
                 pk = (self.ui.comboBox_note_pk.currentText())
             response = requests.get(f"http://127.0.0.1:8000/notes/{pk}", auth=auth)
+            self.ui.labe_window_output.setStyleSheet("background-color: lightgreen")
+            self.ui.labe_window_output.setText("Результат:")
 
         if response.status_code == 403:
             self.ui.labe_window_output.setStyleSheet("background-color: red")
@@ -172,7 +186,12 @@ class Note_Form(QtWidgets.QMainWindow):
         self.ui.tableView_output.setItemDelegateForColumn(6, self.pbdelete)
         pk = None
 
-    def deleteNote(self, push_row):
+    def deleteNote(self, push_row) -> None:
+        """
+        Метод DELETE
+        :param push_row: сигнал из кнопки делегата PushButtonDelegate
+        :return: None
+        """
         row = push_row.row()
         if self.login and self.password:
             auth = HTTPBasicAuth(self.login, self.password)
@@ -191,12 +210,11 @@ class Note_Form(QtWidgets.QMainWindow):
             self.ui.labe_window_output.setText(f"Запись с 'id' {pk_to_del} удалена")
             self.loadTable()
 
-
         print(response.status_code)
 
 
-
 class DroppedWindow(QtWidgets.QWidget):
+    """Дочернее окно для авторизации"""
     send_data = QtCore.Signal(tuple)
 
     def __init__(self, parent=None):
@@ -224,10 +242,20 @@ class DroppedWindow(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def setSignal(self) -> None:
+        """инициализация сигнала в основное окно"""
         self.send_data.emit((self.lineEditLogin.text(), self.lineEditPass.text()))
+
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        """при нажатии на кнопку Enter (вместо pb_login) вызывается слот setSignal"""
+        if event.key() == 16777220:
+            # if event.text() == "/n":
+            self.setSignal()
 
 
 class PushButtonDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    Кнопка-делегат удаления записи внутри виджета TableView
+    """
     clicked = QtCore.Signal(QtCore.QModelIndex)
 
     def createEditor(self, parent, option, index):
@@ -238,9 +266,6 @@ class PushButtonDelegate(QtWidgets.QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         editor.setText("Удалить")
-
-    # def updateEditorGeometry(self, editor, option, index):
-    #     editor.setGeometry(option.rect)
 
 
 if __name__ == "__main__":

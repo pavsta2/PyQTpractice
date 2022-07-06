@@ -1,88 +1,4 @@
-# from My_form import Ui_Form
-# from PySide2 import QtWidgets, QtCore, QtGui
-#
-#
-# class MyForm(QtWidgets.QWidget):
-#
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
-#
-#         self.ui = Ui_Form()
-#         self.ui.setupUi(self)
-#
-#         self.ui.pushButton.clicked.connect(self.setPosition)
-#         self.ui.pushButton_2.clicked.connect(self.setPosition)
-#         self.ui.pushButton_3.clicked.connect(self.setPosition)
-#         self.ui.pushButton_4.clicked.connect(self.setPosition)
-#         self.ui.pushButton_5.clicked.connect(self.setPosition)
-#
-#         self.ui.comboBox.addItems(["HEX", "DEC", "OCT", "BIN"])
-#
-#
-#
-#     def setPosition(self):
-#
-#         buttonText = self.sender().text()
-#         screenWidth = QtWidgets.QApplication.screenAt(self.pos()).size().width()
-#         screenHeigth = QtWidgets.QApplication.screenAt(self.pos()).size().height()
-#
-#         position = {
-#             "Лево/Верх":(0,0),
-#             "Лево/Низ": (0, screenHeigth - self.height() - 100),
-#             "Центр": (screenWidth / 2 - self.width() / 2, screenHeigth / 2 - self.height() / 2),
-#             "Право/Верх": (screenWidth - self.width(), 0),
-#             "Право/Низ": (screenWidth - self.width(), screenHeigth - self.height() - 100)}
-#
-#         self.move(position.get(buttonText)[0], position.get(buttonText)[1])
-#
-#     def getScreenParam(self):
-#         pass
-#
-#     def changeLCDdigits(self):
-#         x = {
-#             "HEX": self.ui.lcdNumber.setHexMode,
-#             "DEC": self.ui.lcdNumber.setDecMode,
-#             "OCT": self.ui.lcdNumber.setOctMode,
-#             "BIN": self.ui.lcdNumber.setBinMode,
-#         }
-#
-#         x[self.ui.comboBox.currentText()]()
-#
-#     def changeEvent(self, event: QtCore.QEvent) -> None:
-#         # print(event.type())
-#         if event.type() == QtCore.QEvent.Type.WindowStateChange:
-#             if self.isMinimized():
-#                 print("Окно свернуто")
-#
-#     def moveEvent(self, event: QtGui.QMoveEvent) -> None:
-#         print(self.pos())
-#
-#     def event(self, event: QtCore.QEvent) -> bool:
-#         if event.type() == QtCore.QEvent.Resize:
-#             print(self.size())
-#
-#         return QtWidgets.QWidget.event(self, event)
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-# if __name__ == "__main__":
-#     app = QtWidgets.QApplication()
-#
-#     myapp = MyForm()
-#     myapp.show()
-#
-#     app.exec_()
+
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtCore import QSettings
 import My_form
@@ -180,9 +96,6 @@ class MyForm(QtWidgets.QWidget):
         if self.ui.comboBox.currentText() == "BIN":
             self.ui.lcdNumber.setBinMode()
             print(self.ui.lcdNumber.mode())
-
-
-
 
 
     def changeEvent(self, event: QtCore.QEvent) -> None:

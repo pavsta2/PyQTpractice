@@ -20,7 +20,7 @@ class Note_Form(QtWidgets.QMainWindow):
         self.initWindows()
 
     def initUi(self) -> None:
-        self.setFixedSize(1200, 1200)
+        self.setFixedSize(800, 800)
         # добавление иконки
         my_res.qInitResources()
         self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(":/ico/ico/atom-browser.ico")))
@@ -111,6 +111,7 @@ class Note_Form(QtWidgets.QMainWindow):
             self.open_child_window()
 
         if response.status_code == 201:
+            self.ui.comboBox_note_pk.clear()
             self.ui.comboBox_note_pk.addItems(self.get_id_list())
             self.ui.labe_window_output.setStyleSheet("color: darkgreen")
             self.ui.labe_window_output.setText("Запись опубликована")
@@ -190,7 +191,7 @@ class Note_Form(QtWidgets.QMainWindow):
 
         self.ui.tableView_output.setModel(stm)
         self.ui.tableView_output.setItemDelegateForColumn(6, self.pbdelete)
-        pk = None
+
 
     def deleteNote(self, push_row) -> None:
         """
@@ -198,23 +199,32 @@ class Note_Form(QtWidgets.QMainWindow):
         :param push_row: сигнал из кнопки делегата PushButtonDelegate
         :return: None
         """
-        row = push_row.row()
+        # row = push_row.row()
         if self.login and self.password:
             auth = HTTPBasicAuth(self.login, self.password)
         else:
             self.open_child_window()
 
-        response = requests.get("http://127.0.0.1:8000/notes/")
-        pk_to_del = response.json()[row]["id"]
-        if response.json()[row]["author"] != self.login:
+        model: QtGui.QStandardItemModel = self.ui.tableView_output.model()
+        row_data = model.item(push_row.row(), 0)
+        id = row_data.data(0)
+        author = row_data.data(5)
+
+
+        # response = requests.get("http://127.0.0.1:8000/notes/")
+        # pk_to_del = response.json()[row]["id"]
+        if author != self.login:
             self.ui.labe_window_output.setStyleSheet("color: red")
             self.ui.labe_window_output.setText("Вы не можете удалять чужие записи !!!")
-        response = requests.delete(f"http://127.0.0.1:8000/notes/{pk_to_del}", auth=auth)
+
+        response = requests.delete(f"http://127.0.0.1:8000/notes/{id}", auth=auth)
 
         if response.status_code == 200:
+            self.ui.comboBox_note_pk.clear()
+            self.ui.comboBox_note_pk.addItems(self.get_id_list())
             self.ui.labe_window_output.setStyleSheet("color: lightgreen")
-            self.ui.labe_window_output.setText(f"Запись с 'id' {pk_to_del} удалена")
-            self.loadTable()
+            self.ui.labe_window_output.setText(f"Запись с 'id' {id} удалена")
+            # self.loadTable()
 
         print(response.status_code)
 
@@ -270,6 +280,7 @@ class PushButtonDelegate(QtWidgets.QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         button = QtWidgets.QPushButton(parent)
+
         button.clicked.connect(lambda *args, ix=index: self.clicked.emit(ix))
 
         return button

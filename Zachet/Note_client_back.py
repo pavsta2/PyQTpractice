@@ -20,12 +20,11 @@ class Note_Form(QtWidgets.QMainWindow):
         self.initWindows()
 
     def initUi(self) -> None:
-
         self.setFixedSize(1200, 1200)
-
+        # добавление иконки
         my_res.qInitResources()
         self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(":/ico/ico/atom-browser.ico")))
-
+        # изменение стиля
         with open("./ui/themes/darkstyle.qss") as f:
             self.setStyleSheet(f.read())
 
@@ -40,6 +39,7 @@ class Note_Form(QtWidgets.QMainWindow):
         self.ui.pushButton.clicked.connect(self.postNote)
         self.ui.pushButton_login.clicked.connect(self.open_child_window)
         self.ui.pushButton_note_pk.clicked.connect(self.loadTable)
+
         self.ui.checkBox_filter.stateChanged.connect(self.filter_activate)
 
         self.pbdelete = PushButtonDelegate()

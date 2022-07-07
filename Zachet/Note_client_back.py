@@ -20,6 +20,7 @@ class Note_Form(QtWidgets.QMainWindow):
         self.initWindows()
 
     def initUi(self) -> None:
+
         self.setFixedSize(1200, 1200)
 
         my_res.qInitResources()
@@ -228,7 +229,8 @@ class DroppedWindow(QtWidgets.QWidget):
         self.initUi()
 
     def initUi(self) -> None:
-        self.setFixedSize(400, 200)
+        self.setFixedSize(600, 400)
+        self.setWindowTitle("Окно авторизации")
 
         with open("./ui/themes/darkstyle.qss") as f:
             self.setStyleSheet(f.read())
